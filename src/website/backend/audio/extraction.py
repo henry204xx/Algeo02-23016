@@ -4,19 +4,12 @@ import numpy as np
 from process import process_midi_file 
 
 def extract_zip(zip_path, extract_to='extracted'):
-    # Mendapatkan path absolut untuk base_dir dan extract_to
     base_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.join(base_dir, '..', '..', '..', '..')
-
-    # Path absolut untuk file zip di src/website/uploads/audios
     zip_path = os.path.join(project_root, 'src', 'website', 'uploads', 'audios', zip_path)
     extract_to = os.path.join(base_dir, extract_to)
-
-    # Buat direktori ekstraksi jika belum ada
     if not os.path.exists(extract_to):
         os.makedirs(extract_to)
-
-    # Ekstraksi file ZIP
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_to)
