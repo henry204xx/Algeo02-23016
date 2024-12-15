@@ -25,6 +25,6 @@ def create_artist_mapping(pictures_folder, audio_folder, output_json="mapper.jso
     print(f"Artist mapping saved to {output_json}")
 
 # Example usage
-pictures4 = "C:/Users/YOGA/Downloads/pictures4"
-audio4 = "C:/Users/YOGA/Downloads/audio4"
+pictures4 = "src/website/uploads/pictures/pictures4"
+audio4 = "src/website/uploads/audios/audio4"
 create_artist_mapping(pictures4, audio4)

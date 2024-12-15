@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Uploader } from '@/components/uploader';
 import { SearchBar } from '@/components/search-bar';
 import { AudioGrid } from '@/components/audio-grid';
