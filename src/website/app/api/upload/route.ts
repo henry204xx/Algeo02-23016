@@ -21,10 +21,13 @@ export async function POST(req: NextRequest) {
     // Define the directory to store the file
     const uploadDir = path.join(process.cwd(), 'uploads', type);
 
-    // Ensure the folder exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // Remove the existing folder if it exists
+    if (fs.existsSync(uploadDir)) {
+      fs.rmdirSync(uploadDir, { recursive: true });
     }
+
+    // Create a new folder
+    fs.mkdirSync(uploadDir, { recursive: true });
 
     // Save the file to the correct directory
     const filePath = path.join(uploadDir, file.name);
