@@ -2,7 +2,6 @@ import zipfile
 import os
 import sys
 
-# Menambahkan path ke sys.path untuk mengimpor modul dari parent directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.join(current_dir, '..', '..', '..', '..')
 sys.path.append(project_dir)
@@ -11,7 +10,6 @@ from src.website.backend.audio.extraction import extract_zip, compare_filemidi
 
 def all_midi_files(folder_path):
     midi_files = []
-    # Gunakan os.walk untuk menjelajahi folder 'extracted'
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.lower().endswith('.mid'):
@@ -47,11 +45,40 @@ if __name__ == "__main__":
     extract_to = os.path.join(current_dir, 'extracted')  # Folder untuk ekstraksi
     query = 'bach.mid'  # Nama file MIDI target
 
-    # Panggil fungsi audio_query
     urutan_kemiripan = audio_query(zip_path, extract_to, query)
-    midi_files = all_midi_files(extract_to)
-    
-    print(midi_files)  # Debugging untuk melihat file MIDI yang ditemukan
-    # Print urutan kemiripan
     for midi_file, similarity in urutan_kemiripan:
         print(f"File: {midi_file}, Similarity: {similarity}%")
+# Contoh Output
+# File: src\website\backend\audio\extracted\bach\bach_846.mid, Similarity: 100%
+
+# File: src\website\backend\audio\extracted\albeniz\alb_esp2.mid, Similarity: 98%
+
+# File: src\website\backend\audio\extracted\beeth\beethoven_hammerklavier_1.mid, Similarity: 98%
+
+# File: src\website\backend\audio\extracted\beeth\waldstein_1.mid, Similarity: 98%
+
+# File: src\website\backend\audio\extracted\burgm\burg_sylphen.mid, Similarity: 98%
+
+# File: src\website\backend\audio\extracted\liszt\liz_liebestraum.mid, Similarity: 98%
+
+# File: src\website\backend\audio\extracted\albeniz\alb_se1.mid, Similarity: 97%
+
+# File: src\website\backend\audio\extracted\brahms\br_rhap.mid, Similarity: 97%
+
+# File: src\website\backend\audio\extracted\balakir\islamei.mid, Similarity: 91%
+
+# File: src\website\backend\audio\extracted\grieg\grieg_brooklet.mid, Similarity: 90%
+
+# File: src\website\backend\audio\extracted\grieg\grieg_march.mid, Similarity: 90%
+
+# File: src\website\backend\audio\extracted\schumann\schum_abegg.mid, Similarity: 90%
+
+# File: src\website\backend\audio\extracted\albeniz\alb_esp1.mid, Similarity: 88%
+
+# File: src\website\backend\audio\extracted\liszt\liz_donjuan.mid, Similarity: 79%
+
+# File: src\website\backend\audio\extracted\albeniz\alb_se2.mid, Similarity: 78%
+
+# File: src\website\backend\audio\extracted\beeth\beethoven_les_adieux_1.mid, Similarity: 78%
+
+# File: src\website\backend\audio\extracted\beeth\elise.mid, Similarity: 78%
