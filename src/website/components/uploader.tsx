@@ -38,8 +38,14 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error('File upload error:', errorData.error);
+          let errorData;
+          const contentType = response.headers.get('Content-Type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            errorData = { error: 'Unknown error occurred' };
+          }
+          console.error('File upload error:', errorData);
           alert(`Error: ${errorData.error}`);
           return;
         }
