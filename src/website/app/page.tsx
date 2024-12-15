@@ -11,15 +11,22 @@ export default function Home() {
     audios: File | null;
     pictures: File | null;
     mapper: File | null;
+    query: File | null; // Added query
   }>({
     audios: null,
     pictures: null,
     mapper: null,
+    query: null, // Default value for query
   })
+
   const [searchTerm, setSearchTerm] = useState('')
   const [currentView, setCurrentView] = useState<'album' | 'music'>('album')
 
-  const handleFileUpload = (type: 'audios' | 'pictures' | 'mapper', file: File) => {
+  // Updated handleFileUpload function to include 'query'
+  const handleFileUpload = (
+    type: 'audios' | 'pictures' | 'mapper' | 'query',
+    file: File
+  ) => {
     setUploadedFiles(prev => ({ ...prev, [type]: file }))
   }
 
@@ -33,7 +40,11 @@ export default function Home() {
       </header>
       <main className="max-w-7xl mx-auto p-4">
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
-          <Uploader onFileUpload={handleFileUpload} uploadedFiles={uploadedFiles} currentView={currentView} />
+          <Uploader
+            onFileUpload={handleFileUpload}
+            uploadedFiles={uploadedFiles}
+            currentView={currentView}
+          />
           <div className="space-y-6">
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             <AudioGrid searchTerm={searchTerm} currentView={currentView} />
@@ -43,4 +54,3 @@ export default function Home() {
     </div>
   )
 }
-

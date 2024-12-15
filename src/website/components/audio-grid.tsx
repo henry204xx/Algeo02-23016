@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useRef } from 'react'
 import { Play, Pause } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
@@ -7,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { 
   Pagination, 
   PaginationContent, 
-  PaginationEllipsis, 
   PaginationItem, 
   PaginationLink, 
   PaginationNext, 
@@ -27,9 +24,17 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
   const itemsPerPage = 6
 
   useEffect(() => {
-    // Simulating fetching audio files from an API
-    const fetchedFiles = Array.from({ length: 20 }, (_, i) => `audio${i + 1}.wav`)
-    setAudioFiles(fetchedFiles)
+    const fetchAudioFiles = async () => {
+      try {
+        const response = await fetch('/api/audio') 
+        const data = await response.json()
+        setAudioFiles(data)
+      } catch (error) {
+        console.error('Error fetching audio files:', error)
+      }
+    }
+
+    fetchAudioFiles()
   }, [])
 
   useEffect(() => {
@@ -113,8 +118,7 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-      <audio ref={audioRef} src={playingAudio ? `/api/audio/${playingAudio}` : ''} />
+      {playingAudio && <audio ref={audioRef} src={`/uploads/audios/${playingAudio}`} />}
     </div>
   )
 }
-
