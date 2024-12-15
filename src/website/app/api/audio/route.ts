@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 export async function GET() {
-  const audioDirectory = path.join(process.cwd(), 'backend/uploads/audios')
+  const audioDirectory = path.join(process.cwd(), 'uploads/audios')
 
   
   try {

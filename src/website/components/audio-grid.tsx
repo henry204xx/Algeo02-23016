@@ -15,16 +15,15 @@ interface AudioGridProps {
 }
 
 export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
-  const [audioFiles, setAudioFiles] = useState<string[]>([]) // API response: list of URLs
+  const [audioFiles, setAudioFiles] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
 
-  // Fetch audio files from API on load
   useEffect(() => {
     const fetchAudioFiles = async () => {
       try {
-        const response = await fetch('/api/audio') // Replace with your API endpoint
-        const data = await response.json() // Assume it returns an array of audio file URLs
+        const response = await fetch('/api/audio')
+        const data = await response.json()
         setAudioFiles(data)
       } catch (error) {
         console.error('Error fetching audio files:', error)
@@ -34,7 +33,11 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
     fetchAudioFiles()
   }, [])
 
-  // Filter and paginate files
+  // If not in album view, return null
+  if (currentView !== 'album') {
+    return null
+  }
+
   const filteredFiles = audioFiles.filter(file => 
     file.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -61,7 +64,6 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
           </Card>
         ))}
       </div>
-      {/* Pagination */}
       <Pagination>
         <PaginationContent>
           <PaginationItem>
