@@ -6,61 +6,42 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const type = formData.get('type') as string; // Get file type from the client
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // Function to determine the file type (audios, pictures, mapper, or query)
-    const getFileType = (file: File): 'audios' | 'pictures' | 'mapper' | 'query' | null => {
-      const audioExtensions = ['.wav', '.zip', '.mid'];
-      const pictureExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.zip'];
-      const mapperExtensions = ['.txt', '.json'];
-      const queryExtensions = ['.wav', '.zip', '.mid'];
-
-      const extname = path.extname(file.name).toLowerCase();
-
-      if (audioExtensions.includes(extname)) {
-        return 'audios';
-      } else if (pictureExtensions.includes(extname)) {
-        return 'pictures';
-      } else if (mapperExtensions.includes(extname)) {
-        return 'mapper';
-      } else if (queryExtensions.includes(extname)) {
-        return 'query';
-      }
-      return null;
-    };
-
-    const fileType = getFileType(file);
-
-    if (!fileType) {
+    // Validate the provided type
+    const allowedTypes = ['audios', 'pictures', 'mapper', 'queryMusic', 'queryImage'];
+    if (!allowedTypes.includes(type)) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
-    // Define the directory based on file type
-    const uploadDir = path.join(process.cwd(), 'uploads', fileType);
+    // Define the directory to store the file
+    const uploadDir = path.join(process.cwd(), 'uploads', type);
 
-    // Ensure the folder exists by removing the existing one (if any) and then recreating it
+    // Remove the existing folder if it exists
     if (fs.existsSync(uploadDir)) {
-      fs.rmSync(uploadDir, { recursive: true, force: true }); // Remove the existing folder
+      fs.rmSync(uploadDir, { recursive: true, force: true });
     }
 
-    // Recreate the directory
+    // Ensure the folder exists
     fs.mkdirSync(uploadDir, { recursive: true });
 
-    // Save the file into the designated folder
+    // Save the file to the correct directory
     const filePath = path.join(uploadDir, file.name);
     const fileStream = fs.createWriteStream(filePath);
 
+    // Write file chunks to disk
     const reader = file.stream().getReader();
     let done = false;
-    let chunk;
     while (!done) {
-      ({ done, value: chunk } = await reader.read());
-      if (chunk) {
-        fileStream.write(chunk);
+      const { value, done: readerDone } = await reader.read();
+      if (value) {
+        fileStream.write(value);
       }
+      done = readerDone;
     }
 
     fileStream.end();
@@ -69,7 +50,7 @@ export async function POST(req: NextRequest) {
       {
         message: 'File uploaded successfully',
         file: file.name,
-        type: fileType,
+        type,
       },
       { status: 200 }
     );

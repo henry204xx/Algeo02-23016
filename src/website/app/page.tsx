@@ -1,34 +1,35 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Uploader } from '@/components/uploader'
-import { SearchBar } from '@/components/search-bar'
-import { AudioGrid } from '@/components/audio-grid'
-import { Navigation } from '@/components/navigation'
+import { useState } from 'react';
+import { Uploader } from '@/components/uploader';
+import { SearchBar } from '@/components/search-bar';
+import { AudioGrid } from '@/components/audio-grid';
+import { Navigation } from '@/components/navigation';
 
 export default function Home() {
   const [uploadedFiles, setUploadedFiles] = useState<{
     audios: File | null;
     pictures: File | null;
     mapper: File | null;
-    query: File | null; // Added query
+    queryMusic: File | null;
+    queryImage: File | null;
   }>({
     audios: null,
     pictures: null,
     mapper: null,
-    query: null, // Default value for query
-  })
+    queryMusic: null,
+    queryImage: null,
+  });
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [currentView, setCurrentView] = useState<'album' | 'music'>('album')
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentView, setCurrentView] = useState<'album' | 'music'>('album');
 
-  // Updated handleFileUpload function to include 'query'
   const handleFileUpload = (
-    type: 'audios' | 'pictures' | 'mapper' | 'query',
+    type: 'audios' | 'pictures' | 'mapper' | 'queryMusic' | 'queryImage',
     file: File
   ) => {
-    setUploadedFiles(prev => ({ ...prev, [type]: file }))
-  }
+    setUploadedFiles(prev => ({ ...prev, [type]: file }));
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f9ff]">
@@ -52,5 +53,5 @@ export default function Home() {
         </div>
       </main>
     </div>
-  )
+  );
 }

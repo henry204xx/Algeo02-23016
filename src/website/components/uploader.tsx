@@ -8,21 +8,20 @@ interface UploadedFilesState {
   audios: File | null;
   pictures: File | null;
   mapper: File | null;
-  query: File | null;
+  queryMusic: File | null;
+  queryImage: File | null;
 }
 
-export function Uploader() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesState>({
-    audios: null,
-    pictures: null,
-    mapper: null,
-    query: null,
-  });
-  const [currentView, setCurrentView] = useState<'album' | 'music'>('album');
+interface UploaderProps {
+  onFileUpload: (type: 'audios' | 'pictures' | 'mapper' | 'queryMusic' | 'queryImage', file: File) => void;
+  uploadedFiles: UploadedFilesState;
+  currentView: 'album' | 'music';
+}
 
+export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderProps) {
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    type: 'audios' | 'pictures' | 'mapper' | 'query'
+    type: 'audios' | 'pictures' | 'mapper' | 'queryMusic' | 'queryImage'
   ) => {
     const file = event.target.files?.[0];
     console.log(`File selected for ${type}:`, file);
@@ -31,6 +30,7 @@ export function Uploader() {
       // Create FormData to send to API
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('type', type); // Explicitly pass file type to the server
 
       try {
         const response = await fetch('/api/upload', {
@@ -49,10 +49,7 @@ export function Uploader() {
         console.log('File upload success:', result);
 
         // Update state to show the uploaded file
-        setUploadedFiles((prev) => ({
-          ...prev,
-          [type]: file,
-        }));
+        onFileUpload(type, file);
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -61,8 +58,8 @@ export function Uploader() {
 
   const fileInputs =
     currentView === 'album'
-      ? ['audios', 'pictures', 'mapper', 'query']
-      : ['audios', 'query'];
+      ? ['audios', 'pictures', 'mapper', 'queryImage']
+      : ['audios', 'queryMusic'];
 
   return (
     <Card className="bg-[#f0f2ff]">
@@ -100,8 +97,10 @@ export function Uploader() {
                     ? '.wav,.zip,.mid'
                     : type === 'mapper'
                     ? '.txt,.json'
-                    : type === 'query'
+                    : type === 'queryMusic'
                     ? '.wav,.zip,.mid,.mp3'
+                    : type === 'queryImage'
+                    ? '.png,.jpg,.jpeg,.gif'
                     : '.png,.jpg,.jpeg,.gif,.zip'
                 }
               />
