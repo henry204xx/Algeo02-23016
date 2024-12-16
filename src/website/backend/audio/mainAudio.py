@@ -93,11 +93,17 @@ def copy_results_to_result_folder(results):
         shutil.rmtree(result_folder)
     os.makedirs(result_folder)
 
+    if not results:
+        print("No results to copy.")
+        return
+
     # sort result
     results.sort(key=lambda x: x[1], reverse=True)
     
     # Tambahkan similarity percentage
     for midi_file, similarity in results:
+        if similarity == 0:
+            continue  # Skip files with 0 similarity
         
         filename = os.path.basename(midi_file)
         
