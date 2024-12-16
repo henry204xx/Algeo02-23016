@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   Pagination, 
   PaginationContent, 
@@ -7,62 +7,72 @@ import {
   PaginationLink, 
   PaginationNext, 
   PaginationPrevious
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 
 interface AudioGridProps {
-  searchTerm: string
-  currentView: 'album' | 'music'
+  searchTerm: string;
+  currentView: 'album' | 'music';
 }
 
 export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
-  const [audioFiles, setAudioFiles] = useState<string[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 6
-  const [pollingActive, setPollingActive] = useState(true) // Control polling state
+  const [audioFiles, setAudioFiles] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  const [pollingActive, setPollingActive] = useState(true); // Control polling state
 
   // Function to fetch audio files
   const fetchAudioFiles = async () => {
     try {
-      const response = await fetch('/api/audio')
-      const data = await response.json()
+      const apiEndpoint = currentView === 'album' ? '/api/audio' : '/api/audio2';
+      const response = await fetch(apiEndpoint);
+      const data = await response.json();
 
       if (Array.isArray(data) && data.length > 0) {
-        setAudioFiles(data)
+        // Sort the filenames based on the numeric value in the filename (from highest to lowest)
+        const sortedData = data.sort((a: string, b: string) => {
+          const fileNameA = decodeURIComponent(a.split('/').pop() || '');
+          const fileNameB = decodeURIComponent(b.split('/').pop() || '');
+
+          // Extract numeric values from filenames using a regular expression
+          const numA = parseInt(fileNameA.match(/\d+/)?.[0] || '0');
+          const numB = parseInt(fileNameB.match(/\d+/)?.[0] || '0');
+
+          return numB - numA; // Sort in descending order based on the extracted number
+        });
+        setAudioFiles(sortedData);
       } else {
-        setAudioFiles([])
+        setAudioFiles([]);
       }
-      setPollingActive(true) // Always keep polling
+      setPollingActive(true); // Always keep polling
     } catch (error) {
-      console.error('Error fetching audio files:', error)
-      setPollingActive(false) // Stop polling on error
+      console.error('Error fetching audio files:', error);
+      setPollingActive(false); // Stop polling on error
     }
-  }
+  };
 
   // Polling logic
   useEffect(() => {
-    fetchAudioFiles() // Initial fetch
-    let interval: NodeJS.Timeout
+    fetchAudioFiles(); // Initial fetch
+    let interval: NodeJS.Timeout;
 
     if (pollingActive) {
-      interval = setInterval(fetchAudioFiles, 10000) // Poll only when active
+      interval = setInterval(fetchAudioFiles, 10000); // Poll only when active
     }
 
-    return () => clearInterval(interval) // Cleanup
-  }, [pollingActive]) // Depend on pollingActive state
+    return () => clearInterval(interval); // Cleanup
+  }, [pollingActive, currentView]); // Depend on pollingActive and currentView state
 
   // Filter files based on search term
   const filteredFiles = audioFiles.filter(file =>
     file.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   // Pagination logic
-  const pageCount = Math.ceil(filteredFiles.length / itemsPerPage)
+  const pageCount = Math.ceil(filteredFiles.length / itemsPerPage);
   const paginatedFiles = filteredFiles.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  )
-
-  
+  );
 
   return (
     <div className="space-y-6">
@@ -81,7 +91,16 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
               <div className="bg-gray-200 aspect-square" />
               <div className="bg-[#080c2c] p-3 flex items-center gap-2">
                 <span className="text-white">
-                  {decodeURIComponent(fileUrl.split('/').pop() || '')}
+                  {(() => {
+                    try {
+                      // Decode the file URL and ensure proper decoding of % characters
+                      const decodedFileName = decodeURIComponent(fileUrl.split('/').pop() || '');
+                      return decodedFileName;
+                    } catch (e) {
+                      console.error('Error decoding URI component:', e);
+                      return fileUrl.split('/').pop() || ''; // Fallback if decoding fails
+                    }
+                  })()}
                 </span>
               </div>
             </CardContent>
@@ -122,5 +141,5 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
         </Pagination>
       )}
     </div>
-  )
+  );
 }

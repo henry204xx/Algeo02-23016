@@ -78,7 +78,7 @@ def find_album():
         return
 
     # Define the result folder path at the same level as uploads
-    result_folder = os.path.join(script_dir, '../../result')
+    result_folder = os.path.join(script_dir, '../../resultalbum')
 
     # Replace the existing result folder if it exists
     if os.path.exists(result_folder):
