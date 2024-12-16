@@ -1,6 +1,7 @@
 import zipfile
 import os
 import sys
+import time
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.join(current_dir, '..', '..', '..', '..')
@@ -39,15 +40,26 @@ def audio_query(zip_path, extract_to, query):
         print(f"File {query} tidak ditemukan di src/website/uploads/audios.")
         return []
 
+def waktu_program_audio(zip_path, extract_to, query):
+    start_time = time.time()
+    urutan_kemiripan = audio_query(zip_path, extract_to, query)
+    end_time = time.time()
+    waktu_eksekusi = end_time - start_time
+    return urutan_kemiripan, waktu_eksekusi
+
 # Contoh penggunaan
 if __name__ == "__main__":
     zip_path = 'audio.zip'  # Path ke file zip
     extract_to = os.path.join(current_dir, 'extracted')  # Folder untuk ekstraksi
     query = 'bach.mid'  # Nama file MIDI target
 
-    urutan_kemiripan = audio_query(zip_path, extract_to, query)
+    urutan_kemiripan, waktu_eksekusi = waktu_program_audio(zip_path, extract_to, query)
+    
     for midi_file, similarity in urutan_kemiripan:
         print(f"File: {midi_file}, Similarity: {similarity}%")
+    
+    print(f"Waktu eksekusi program: {waktu_eksekusi:.2f} detik")
+
 # Contoh Output
 # File: src\website\backend\audio\extracted\bach\bach_846.mid, Similarity: 100%
 
