@@ -50,7 +50,6 @@ def find_album():
     unzip_files(image_zip, image_folder_unzip)
     unzip_files(audio_zip, audio_folder_unzip)
 
-    image_folder = os.path.join(script_dir, '../../uploads/pictures/pictures4')
     query_image_folder = os.path.join(script_dir, '../../uploads/queryImage')
     query_image_files = [f for f in os.listdir(query_image_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
 
@@ -63,7 +62,7 @@ def find_album():
     print(f"Using query image: {query_image_path}")
 
     # Perform face recognition to find the closest image
-    closest_image_path, closest_distance = face_recognition(image_folder, query_image_path)
+    closest_image_path, closest_distance = face_recognition(image_folder_unzip, query_image_path)
     print(f"Closest image path: {closest_image_path}, Distance: {closest_distance}")
 
     # Extract the artist name from the closest image path
@@ -71,7 +70,8 @@ def find_album():
     print(f"Identified artist: {artist_name}")
 
     # Get the corresponding audio folder for the identified artist
-    audio_folder = os.path.join(script_dir, '../../uploads/audios', artist_mapping.get(artist_name, {}).get("audio_folder", ""))
+    artist_info = artist_mapping.get(artist_name, {})
+    audio_folder = os.path.join(script_dir, '../../', artist_info.get("audio_folder", ""))
 
     if not audio_folder:
         print("Audio folder not found in artist mapping")
