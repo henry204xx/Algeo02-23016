@@ -24,9 +24,10 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
   const [queryImageUrl, setQueryImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const requiredFields = currentView === 'album'
-      ? ['audios', 'pictures', 'mapper', 'queryImage']
-      : ['audios', 'queryMusic'];
+    const requiredFields =
+      currentView === 'album'
+        ? ['audios', 'pictures', 'mapper', 'queryImage']
+        : ['audios', 'queryMusic'];
 
     const allFilled = requiredFields.every(field => uploadedFiles[field as keyof UploadedFilesState] !== null);
     setAllFieldsFilled(allFilled);
@@ -37,7 +38,6 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
       const url = URL.createObjectURL(uploadedFiles.queryImage);
       setQueryImageUrl(url);
 
-      // Clean up the URL object when the component unmounts or the file changes
       return () => URL.revokeObjectURL(url);
     }
   }, [uploadedFiles.queryImage]);
@@ -92,17 +92,18 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
           setExecutionTime(responseData.executionTime);
         }
       } else if (currentView === 'music') {
-        console.log('Calling find_music API...');
-        const findMusicResponse = await fetch('/api/find-music', {
+        console.log('Calling waktu_program_audio API...');
+        const waktuProgramAudioResponse = await fetch('/api/find-audio', {
           method: 'POST',
         });
 
-        if (!findMusicResponse.ok) {
-          console.error('Error calling find_music API:', await findMusicResponse.json());
-          alert('Error: Unable to execute find_music.');
+        if (!waktuProgramAudioResponse.ok) {
+          console.error('Error calling program_audio API:', await waktuProgramAudioResponse.json());
+          alert('Error: Unable to execute find-audio.');
         } else {
-          console.log('find_music API called successfully');
-          alert('find_music executed successfully!');
+          const responseData = await waktuProgramAudioResponse.json();
+          console.log('waktu_program_audio API called successfully');
+          setExecutionTime(responseData.executionTime);
         }
       }
     } catch (error) {

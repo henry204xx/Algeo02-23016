@@ -44,7 +44,7 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
     let interval: NodeJS.Timeout
 
     if (pollingActive) {
-      interval = setInterval(fetchAudioFiles, 1000) // Poll only when active
+      interval = setInterval(fetchAudioFiles, 10000) // Poll only when active
     }
 
     return () => clearInterval(interval) // Cleanup
@@ -62,9 +62,7 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
     currentPage * itemsPerPage
   )
 
-  if (currentView !== 'album') {
-    return null
-  }
+  
 
   return (
     <div className="space-y-6">
