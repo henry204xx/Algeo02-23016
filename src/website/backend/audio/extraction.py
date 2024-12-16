@@ -17,23 +17,35 @@ def extract_zip(zip_path, extract_to='extracted'):
         print(f"File {zip_path} tidak ditemukan.")
 
 def fitur_atb(notes):
+    if not notes:
+        return np.zeros(128)
     histogram, _ = np.histogram(notes, bins=128, range=(0, 127))
     total_count = np.sum(histogram)
+    if total_count == 0:
+        return np.zeros(128)
     norm_histogram = histogram / total_count 
     return norm_histogram
 
 def fitur_rtb(notes):
+    if len(notes) < 2:
+        return np.zeros(255)
     intervals = np.diff(notes)
     histogram, _ = np.histogram(intervals, bins=255, range=(-127, 127))
     total_count = np.sum(histogram)
+    if total_count == 0:
+        return np.zeros(255)
     norm_histogram = histogram / total_count
     return norm_histogram
 
 def fitur_ftb(notes):
+    if not notes:
+        return np.zeros(255)
     first_note = notes[0]
     intervals = np.array(notes) - first_note
     histogram, _ = np.histogram(intervals, bins=255, range=(-127, 127))
     total_count = np.sum(histogram)
+    if total_count == 0:
+        return np.zeros(255)
     norm_histogram = histogram / total_count
     return norm_histogram
 
