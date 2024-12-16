@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/search-bar';
 import { AudioGrid } from '@/components/audio-grid';
 import { Navigation } from '@/components/navigation';
 
+
 export default function Home() {
   const [uploadedFiles, setUploadedFiles] = useState<{
     audios: File | null;

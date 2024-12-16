@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 
 interface UploadedFilesState {
   audios: File | null;
@@ -18,18 +19,28 @@ interface UploaderProps {
 }
 
 export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderProps) {
+  const [allFieldsFilled, setAllFieldsFilled] = useState(false);
+
+  // Check if all required fields are filled
+  useEffect(() => {
+    const requiredFields = currentView === 'album'
+      ? ['audios', 'pictures', 'mapper', 'queryImage']
+      : ['audios', 'queryMusic'];
+
+    const allFilled = requiredFields.every(field => uploadedFiles[field as keyof UploadedFilesState] !== null);
+    setAllFieldsFilled(allFilled);
+  }, [uploadedFiles, currentView]);
+
+  // Handle file uploads
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     type: 'audios' | 'pictures' | 'mapper' | 'queryMusic' | 'queryImage'
   ) => {
     const file = event.target.files?.[0];
-    console.log(`File selected for ${type}:`, file);
-
     if (file) {
-      // Create FormData to send to API
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('type', type); // Explicitly pass file type to the server
+      formData.append('type', type);
 
       try {
         const response = await fetch('/api/upload', {
@@ -38,29 +49,59 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
         });
 
         if (!response.ok) {
-          let errorData;
-          const contentType = response.headers.get('Content-Type');
-          if (contentType && contentType.includes('application/json')) {
-            errorData = await response.json();
-          } else {
-            errorData = { error: 'Unknown error occurred' };
-          }
+          const errorData = await response.json();
           console.error('File upload error:', errorData);
           alert(`Error: ${errorData.error}`);
           return;
         }
 
-        const result = await response.json();
-        console.log('File upload success:', result);
-
-        // Update state to show the uploaded file
         onFileUpload(type, file);
       } catch (error) {
         console.error('Error uploading file:', error);
+        alert('An error occurred during file upload.');
       }
     }
   };
 
+  // Handle the Execute button logic
+  const handleFindAlbum = async () => {
+    if (!allFieldsFilled) return;
+
+    try {
+      if (currentView === 'album') {
+        console.log('Calling find_album API...');
+        const findAlbumResponse = await fetch('/api/find-album', {
+          method: 'POST',
+        });
+
+        if (!findAlbumResponse.ok) {
+          console.error('Error calling find_album API:', await findAlbumResponse.json());
+          alert('Error: Unable to execute find_album.');
+        } else {
+          console.log('find_album API called successfully');
+          alert('find_album executed successfully!');
+        }
+      } else if (currentView === 'music') {
+        console.log('Calling find_music API...');
+        const findMusicResponse = await fetch('/api/find-music', {
+          method: 'POST',
+        });
+
+        if (!findMusicResponse.ok) {
+          console.error('Error calling find_music API:', await findMusicResponse.json());
+          alert('Error: Unable to execute find_music.');
+        } else {
+          console.log('find_music API called successfully');
+          alert('find_music executed successfully!');
+        }
+      }
+    } catch (error) {
+      console.error('Error executing API:', error);
+      alert('An unexpected error occurred.');
+    }
+  };
+
+  // Determine which file inputs to render
   const fileInputs =
     currentView === 'album'
       ? ['audios', 'pictures', 'mapper', 'queryImage']
@@ -81,9 +122,7 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
               <Button
                 variant="secondary"
                 className="bg-[#e6e9ff] w-32"
-                onClick={() => {
-                  document.getElementById(`file-${type}`)?.click();
-                }}
+                onClick={() => document.getElementById(`file-${type}`)?.click()}
               >
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </Button>
@@ -112,6 +151,15 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
             </div>
           ))}
         </div>
+
+        <Button
+          variant="default"
+          className={`mt-4 ${!allFieldsFilled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={handleFindAlbum}
+          disabled={!allFieldsFilled}
+        >
+          Execute
+        </Button>
       </CardContent>
     </Card>
   );

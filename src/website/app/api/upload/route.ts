@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     // Remove the existing folder if it exists
     if (fs.existsSync(uploadDir)) {
-      fs.rmdirSync(uploadDir, { recursive: true });
+      fs.rmSync(uploadDir, { recursive: true, force: true }); // Updated here
     }
 
     // Create a new folder

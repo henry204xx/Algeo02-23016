@@ -5,8 +5,13 @@ from pca import face_recognition
 import zipfile
 
 def find_album():
+    print("Starting find_album function")
+
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     # Load the artist mapping from mapper.json
-    mapper_folder = "src/website/uploads/mapper"
+    mapper_folder = os.path.join(script_dir, '../../uploads/mapper')
     mapper_files = [f for f in os.listdir(mapper_folder) if f.endswith('.json')]
 
     if not mapper_files:
@@ -15,6 +20,7 @@ def find_album():
 
     # Assuming we take the first JSON file found in the mapper folder
     mapper_path = os.path.join(mapper_folder, mapper_files[0])
+    print(f"Using mapper file: {mapper_path}")
 
     with open(mapper_path, "r") as file:
         artist_mapping = json.load(file)
@@ -26,23 +32,23 @@ def find_album():
         for filename in os.listdir(zip_folder):
             if filename.endswith('.zip'):
                 zip_path = os.path.join(zip_folder, filename)
+                print(f"Unzipping file: {zip_path}")
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(extract_to)
 
     # Define the zip folders and extraction paths
-    image_zip = "src/website/uploads/pictures"
-    audio_zip = "src/website/uploads/audios"
+    image_zip = os.path.join(script_dir, '../../uploads/pictures')
+    audio_zip = os.path.join(script_dir, '../../uploads/audios')
 
-    image_folder_unzip = "src/website/uploads/pictures"
-    audio_folder_unzip = "src/website/uploads/audios"
+    image_folder_unzip = os.path.join(script_dir, '../../uploads/pictures')
+    audio_folder_unzip = os.path.join(script_dir, '../../uploads/audios')
 
     # Unzip the files
     unzip_files(image_zip, image_folder_unzip)
     unzip_files(audio_zip, audio_folder_unzip)
 
-    image_folder = "src/website/uploads/pictures/pictures4"
-
-    query_image_folder = "src/website/uploads/queryImage"
+    image_folder = os.path.join(script_dir, '../../uploads/pictures/pictures4')
+    query_image_folder = os.path.join(script_dir, '../../uploads/queryImage')
     query_image_files = [f for f in os.listdir(query_image_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
 
     if not query_image_files:
@@ -51,22 +57,25 @@ def find_album():
 
     # Assuming we take the first image file found in the query image folder
     query_image_path = os.path.join(query_image_folder, query_image_files[0])
+    print(f"Using query image: {query_image_path}")
 
     # Perform face recognition to find the closest image
     closest_image_path, closest_distance = face_recognition(image_folder, query_image_path)
+    print(f"Closest image path: {closest_image_path}, Distance: {closest_distance}")
 
     # Extract the artist name from the closest image path
     artist_name = os.path.basename(os.path.dirname(closest_image_path))
+    print(f"Identified artist: {artist_name}")
 
     # Get the corresponding audio folder for the identified artist
-    audio_folder = artist_mapping.get(artist_name, {}).get("audio_folder")
+    audio_folder = os.path.join(script_dir, '../../uploads/audios', artist_mapping.get(artist_name, {}).get("audio_folder", ""))
 
     if not audio_folder:
         print("Audio folder not found in artist mapping")
         return
 
     # Define the result folder path at the same level as uploads
-    result_folder = "src/website/result"
+    result_folder = os.path.join(script_dir, '../../result')
 
     # Replace the existing result folder if it exists
     if os.path.exists(result_folder):
@@ -82,9 +91,8 @@ def find_album():
     else:
         print("Audio folder not found")
 
-    print(f"Closest image path: {closest_image_path}")
-    print(f"Artist name: {artist_name}")
-    print(f"Audio folder: {audio_folder}")
+    print(f"Album finder completed. Closest image path: {closest_image_path}, Artist name: {artist_name}, Audio folder: {audio_folder}")
 
-# Call the function
-find_album()
+# Export the function
+if __name__ == "__main__":
+    find_album()
