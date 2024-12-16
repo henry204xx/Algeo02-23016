@@ -64,7 +64,7 @@ def process_query(query_image_path, width, height, mean_face):
     
     query_image = Image.open(query_image_path) 
     query_image = ImageOps.grayscale(query_image) #grayscale
-    query_image = query_image.resize((width, height), Image.BICUBIC) #resize
+    query_image = query_image.resize((width, height), Image.BILINEAR) #resize
     query_image = np.array(query_image).flatten() #flatten
     return query_image - mean_face
 
