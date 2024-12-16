@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const files = fs.readdirSync(audioDirectory)
     
-    // Filter audio files (mp3, wav, midi, etc.)
+    // Filter audio files 
     const audioFiles = files.filter(file =>
       file.endsWith('.mp3') || file.endsWith('.wav') || file.endsWith('.midi') || file.endsWith('.mid')
     )

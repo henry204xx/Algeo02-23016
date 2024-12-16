@@ -20,7 +20,7 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
   const itemsPerPage = 6;
   const [pollingActive, setPollingActive] = useState(true); // Control polling state
 
-  // Function to fetch audio files
+  // fetch audio files
   const fetchAudioFiles = async () => {
     try {
       const apiEndpoint = currentView === 'album' ? '/api/audio' : '/api/audio2';
@@ -28,16 +28,16 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
       const data = await response.json();
 
       if (Array.isArray(data) && data.length > 0) {
-        // Sort the filenames based on the numeric value in the filename (from highest to lowest)
+        // Sort filename (tinggi ke rendah)
         const sortedData = data.sort((a: string, b: string) => {
           const fileNameA = decodeURIComponent(a.split('/').pop() || '');
           const fileNameB = decodeURIComponent(b.split('/').pop() || '');
 
-          // Extract numeric values from filenames using a regular expression
+          // Ekstrak numeric value
           const numA = parseInt(fileNameA.match(/\d+/)?.[0] || '0');
           const numB = parseInt(fileNameB.match(/\d+/)?.[0] || '0');
 
-          return numB - numA; // Sort in descending order based on the extracted number
+          return numB - numA; // Sort
         });
         setAudioFiles(sortedData);
       } else {
@@ -50,24 +50,24 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
     }
   };
 
-  // Polling logic
+  
   useEffect(() => {
-    fetchAudioFiles(); // Initial fetch
+    fetchAudioFiles();
     let interval: NodeJS.Timeout;
 
     if (pollingActive) {
-      interval = setInterval(fetchAudioFiles, 10000); // Poll only when active
+      interval = setInterval(fetchAudioFiles, 10000); // fetch per 10 detik
     }
 
     return () => clearInterval(interval); // Cleanup
-  }, [pollingActive, currentView]); // Depend on pollingActive and currentView state
+  }, [pollingActive, currentView]); 
 
-  // Filter files based on search term
+  // Filter files 
   const filteredFiles = audioFiles.filter(file =>
     file.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
+  // Pagination
   const pageCount = Math.ceil(filteredFiles.length / itemsPerPage);
   const paginatedFiles = filteredFiles.slice(
     (currentPage - 1) * itemsPerPage,
@@ -76,14 +76,14 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
 
   return (
     <div className="space-y-6">
-      {/* Show message if no data */}
+      {/* Message kalau tidak ada data */}
       {audioFiles.length === 0 && (
         <div className="text-center text-gray-500">
           No audio files available.
         </div>
       )}
 
-      {/* Grid of Audio Cards */}
+      {/*  */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {paginatedFiles.map((fileUrl, index) => (
           <Card key={index} className="overflow-hidden">
@@ -93,12 +93,12 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
                 <span className="text-white">
                   {(() => {
                     try {
-                      // Decode the file URL and ensure proper decoding of % characters
+                      // deconding filename dengan %
                       const decodedFileName = decodeURIComponent(fileUrl.split('/').pop() || '');
                       return decodedFileName;
                     } catch (e) {
                       console.error('Error decoding URI component:', e);
-                      return fileUrl.split('/').pop() || ''; // Fallback if decoding fails
+                      return fileUrl.split('/').pop() || ''; 
                     }
                   })()}
                 </span>
@@ -108,7 +108,7 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
         ))}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {pageCount > 1 && (
         <Pagination>
           <PaginationContent>
