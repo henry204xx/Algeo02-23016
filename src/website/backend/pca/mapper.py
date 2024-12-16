@@ -4,7 +4,7 @@ import json
 def create_artist_mapping(pictures_folder, audio_folder, output_json="mapper.json"):
     artist_mapping = {}
 
-    # Get all artist folders from pictures and audio
+    
     picture_artists = sorted(os.listdir(pictures_folder))
 
     # Map artist folders
@@ -18,13 +18,13 @@ def create_artist_mapping(pictures_folder, audio_folder, output_json="mapper.jso
                 "audio_folder": audio_path
             }
 
-    # Save as JSON
+    # Save sebagai JSON
     with open(output_json, "w") as json_file:
         json.dump(artist_mapping, json_file, indent=4)
 
     print(f"Artist mapping saved to {output_json}")
 
-# Example usage
+
 pictures4 = "src/website/uploads/pictures/pictures4"
 audio4 = "src/website/uploads/audios/audio4"
 create_artist_mapping(pictures4, audio4)

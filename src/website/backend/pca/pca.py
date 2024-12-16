@@ -8,7 +8,7 @@ def process_dataset(image_folder, width, height):
     all_images = []
     image_paths = []
 
-    # Walk through the folder and its subfolders
+    
     for root, _, files in os.walk(image_folder):
         for f in files:
             if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
@@ -33,7 +33,7 @@ def data_centering(images):
     return centered_images, mean_face
 
 
-# Step 2: Perform PCA Using SVD
+# Step 2: Lakukan pca dengan SVD
 def pca_svd(standardized_images):
    
     covariance_matrix = np.cov(standardized_images, rowvar=False)
@@ -54,7 +54,7 @@ def project_k_components(U, k):
     return U[:, :k]
 
 
-# Step 3: Project Data and Query Image into PCA Space
+# Step 3: Project Data and Query Image ke ruang PCA
 def project_data(data, Uk):
     
     return data @ Uk
@@ -69,7 +69,7 @@ def process_query(query_image_path, width, height, mean_face):
     return query_image - mean_face
 
 
-# Step 4: Perform Recognition Using Euclidean Distance
+# Step 4: Lakukan euclidean distance untuk mencari closest image
 def euclidean_dist(q, z):
 
     return np.linalg.norm(q - z)
@@ -87,23 +87,23 @@ def closest_image(query_projection, dataset_projections, image_paths):
 # Main PCA Face Recognition Function
 def face_recognition(image_folder, query_image_path, width=64, height=64):
 
-    # Step 1: Load and preprocess images
+    # Step 1: Preprocess and Standardize Data
     images, image_paths = process_dataset(image_folder, width, height)
     standardized_images, mean_face = data_centering(images)
 
-    # Step 2: Perform PCA
+    # Step 2: PCA
     U, S, Vt = pca_svd(standardized_images)
     k = determine_k(S, threshold=0.90)
     Uk = project_k_components(U, k)
 
-    # Step 3: Project training images into PCA space
+    # Step 3: Project training images ke ruang PCA
     dataset_projections = project_data(standardized_images, Uk)
 
-    # Step 4: Preprocess and project query image
+    # Step 4: Preprocess dan project query image
     query_image_centered = process_query(query_image_path, width, height, mean_face)
     query_projection = project_data(query_image_centered.reshape(1, -1), Uk)
 
-    # Step 5: Find closest images using Euclidean distance
+    # Step 5: cari closest image
     closest_image_path, closest_distance = closest_image(query_projection, dataset_projections, image_paths)
 
 # Output result

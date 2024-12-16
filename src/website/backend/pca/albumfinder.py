@@ -10,10 +10,10 @@ def find_album():
 
     start_time = time.time()
 
-    # Get the directory of the current script
+    # directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Load the artist mapping from mapper.json
+    # load mapper
     mapper_folder = os.path.join(script_dir, '../../uploads/mapper')
     mapper_files = [f for f in os.listdir(mapper_folder) if f.endswith('.json')]
 
@@ -21,16 +21,16 @@ def find_album():
         print(f"No JSON files found in mapper folder: {mapper_folder}")
         return
 
-    # Assuming we take the first JSON file found in the mapper folder
+    
     mapper_path = os.path.join(mapper_folder, mapper_files[0])
     print(f"Using mapper file: {mapper_path}")
 
     with open(mapper_path, "r") as file:
         artist_mapping = json.load(file)
 
-    # Define the image folder and query image path
+   
 
-    # Unzip any .zip files in the pictures and audios folders
+    # Unzip 
     def unzip_files(zip_folder, extract_to):
         for filename in os.listdir(zip_folder):
             if filename.endswith('.zip'):
@@ -39,14 +39,14 @@ def find_album():
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(extract_to)
 
-    # Define the zip folders and extraction paths
+    
     image_zip = os.path.join(script_dir, '../../uploads/pictures')
     audio_zip = os.path.join(script_dir, '../../uploads/audios')
 
     image_folder_unzip = os.path.join(script_dir, '../../uploads/pictures')
     audio_folder_unzip = os.path.join(script_dir, '../../uploads/audios')
 
-    # Unzip the files
+    # Unzip
     unzip_files(image_zip, image_folder_unzip)
     unzip_files(audio_zip, audio_folder_unzip)
 
@@ -57,19 +57,19 @@ def find_album():
         print(f"No image files found in query image folder: {query_image_folder}")
         return
 
-    # Assuming we take the first image file found in the query image folder
+    # ambil query image path
     query_image_path = os.path.join(query_image_folder, query_image_files[0])
     print(f"Using query image: {query_image_path}")
 
-    # Perform face recognition to find the closest image
+    # lakukan face recognition
     closest_image_path, closest_distance = face_recognition(image_folder_unzip, query_image_path)
     print(f"Closest image path: {closest_image_path}, Distance: {closest_distance}")
 
-    # Extract the artist name from the closest image path
+    # Dapatkan nama folder (artis)
     artist_name = os.path.basename(os.path.dirname(closest_image_path))
     print(f"Identified artist: {artist_name}")
 
-    # Get the corresponding audio folder for the identified artist
+    # Ambil audio folder dari mapper
     artist_info = artist_mapping.get(artist_name, {})
     audio_folder = os.path.join(script_dir, '../../', artist_info.get("audio_folder", ""))
 
@@ -77,15 +77,15 @@ def find_album():
         print("Audio folder not found in artist mapping")
         return
 
-    # Define the result folder path at the same level as uploads
+   
     result_folder = os.path.join(script_dir, '../../resultalbum')
 
-    # Replace the existing result folder if it exists
+  
     if os.path.exists(result_folder):
         shutil.rmtree(result_folder)
     os.makedirs(result_folder)
 
-    # Copy the content of the audio folder to the result folder
+    # Copy audio files
     if os.path.exists(audio_folder):
         for filename in os.listdir(audio_folder):
             src_file = os.path.join(audio_folder, filename)
@@ -101,7 +101,7 @@ def find_album():
     execution_time = round(execution_time, 2)
     print(f"Execution time: {execution_time} seconds")
 
-# Export the function
+
 if __name__ == "__main__":
     execution_time = find_album()
     print(f"Execution time: {execution_time} seconds")
