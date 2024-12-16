@@ -19,16 +19,13 @@ def find_album():
 
     if not mapper_files:
         print(f"No JSON files found in mapper folder: {mapper_folder}")
-        return
+        return None, None
 
-    
     mapper_path = os.path.join(mapper_folder, mapper_files[0])
     print(f"Using mapper file: {mapper_path}")
 
     with open(mapper_path, "r") as file:
         artist_mapping = json.load(file)
-
-   
 
     # Unzip 
     def unzip_files(zip_folder, extract_to):
@@ -39,7 +36,6 @@ def find_album():
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(extract_to)
 
-    
     image_zip = os.path.join(script_dir, '../../uploads/pictures')
     audio_zip = os.path.join(script_dir, '../../uploads/audios')
 
@@ -55,7 +51,7 @@ def find_album():
 
     if not query_image_files:
         print(f"No image files found in query image folder: {query_image_folder}")
-        return
+        return None, None
 
     # ambil query image path
     query_image_path = os.path.join(query_image_folder, query_image_files[0])
@@ -75,12 +71,10 @@ def find_album():
 
     if not audio_folder:
         print("Audio folder not found in artist mapping")
-        return
+        return None, None
 
-   
     result_folder = os.path.join(script_dir, '../../resultalbum')
 
-  
     if os.path.exists(result_folder):
         shutil.rmtree(result_folder)
     os.makedirs(result_folder)
@@ -94,6 +88,14 @@ def find_album():
     else:
         print("Audio folder not found")
 
+    # Copy closest image to public directory
+    public_dir = os.path.join(script_dir, '../../public')
+    if not os.path.exists(public_dir):
+        os.makedirs(public_dir)
+    closest_image_filename = os.path.basename(closest_image_path)
+    public_image_path = os.path.join(public_dir, closest_image_filename)
+    shutil.copy(closest_image_path, public_image_path)
+
     print(f"Album finder completed. Closest image path: {closest_image_path}, Artist name: {artist_name}, Audio folder: {audio_folder}")
 
     end_time = time.time()
@@ -101,7 +103,10 @@ def find_album():
     execution_time = round(execution_time, 2)
     print(f"Execution time: {execution_time} seconds")
 
+    # Return only the filename
+    return closest_image_filename, execution_time
 
 if __name__ == "__main__":
-    execution_time = find_album()
+    public_image_path, execution_time = find_album()
+    print(f"Public image path: {public_image_path}")
     print(f"Execution time: {execution_time} seconds")

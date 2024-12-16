@@ -21,7 +21,9 @@ export async function POST() {
         console.log(`Script stdout: ${stdout}`);
         const executionTimeMatch = stdout.match(/Execution time: (\d+\.\d+) seconds/);
         const executionTime = executionTimeMatch ? parseFloat(executionTimeMatch[1]) : null;
-        resolve(NextResponse.json({ message: 'Album finder executed successfully', executionTime }, { status: 200 }));
+        const publicImagePathMatch = stdout.match(/Public image path: (.+)/);
+        const publicImagePath = publicImagePathMatch ? publicImagePathMatch[1] : null;
+        resolve(NextResponse.json({ message: 'Album finder executed successfully', executionTime, publicImagePath }, { status: 200 }));
       });
     });
   } catch (error) {

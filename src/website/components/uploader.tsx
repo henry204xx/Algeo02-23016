@@ -22,6 +22,7 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
   const [allFieldsFilled, setAllFieldsFilled] = useState(false);
   const [executionTime, setExecutionTime] = useState<number | null>(null);
   const [queryImageUrl, setQueryImageUrl] = useState<string | null>(null);
+  const [publicImagePath, setPublicImagePath] = useState<string | null>(null);
 
   useEffect(() => {
     const requiredFields =
@@ -90,6 +91,7 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
           const responseData = await findAlbumResponse.json();
           console.log('find_album API called successfully');
           setExecutionTime(responseData.executionTime);
+          setPublicImagePath(`/${responseData.publicImagePath}`);
         }
       } else if (currentView === 'music') {
         console.log('Calling waktu_program_audio API...');
@@ -181,6 +183,13 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
           <div className="mt-4">
             <p>Query Image:</p>
             <img src={queryImageUrl} alt="Query Image" className="mt-2 max-w-full h-auto" />
+          </div>
+        )}
+
+        {currentView === 'album' && publicImagePath && (
+          <div className="mt-4">
+            <p>Gambar Album</p>
+            <img src={publicImagePath} alt="Closest Image" className="mt-2 max-w-full h-auto" />
           </div>
         )}
       </CardContent>
