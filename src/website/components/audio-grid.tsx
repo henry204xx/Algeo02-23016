@@ -18,25 +18,37 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
   const [audioFiles, setAudioFiles] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
+  const [pollingActive, setPollingActive] = useState(true) // Control polling state
 
   // Function to fetch audio files
   const fetchAudioFiles = async () => {
     try {
-      const response = await fetch('/api/audio') // Fetch from route
+      const response = await fetch('/api/audio')
       const data = await response.json()
-      setAudioFiles(data) // Update state with new audio files
+
+      if (Array.isArray(data) && data.length > 0) {
+        setAudioFiles(data)
+      } else {
+        setAudioFiles([])
+      }
+      setPollingActive(true) // Always keep polling
     } catch (error) {
       console.error('Error fetching audio files:', error)
+      setPollingActive(false) // Stop polling on error
     }
   }
 
-  // Polling: Fetch audio files periodically
+  // Polling logic
   useEffect(() => {
-    fetchAudioFiles() // Fetch initially
-    const interval = setInterval(fetchAudioFiles, 1000) // Poll every 5 seconds
+    fetchAudioFiles() // Initial fetch
+    let interval: NodeJS.Timeout
 
-    return () => clearInterval(interval) // Cleanup the interval on unmount
-  }, []) // Empty dependency array means it runs only once
+    if (pollingActive) {
+      interval = setInterval(fetchAudioFiles, 1000) // Poll only when active
+    }
+
+    return () => clearInterval(interval) // Cleanup
+  }, [pollingActive]) // Depend on pollingActive state
 
   // Filter files based on search term
   const filteredFiles = audioFiles.filter(file =>
@@ -50,13 +62,19 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
     currentPage * itemsPerPage
   )
 
-  // Render null if not in the 'album' view
   if (currentView !== 'album') {
     return null
   }
 
   return (
     <div className="space-y-6">
+      {/* Show message if no data */}
+      {audioFiles.length === 0 && (
+        <div className="text-center text-gray-500">
+          No audio files available.
+        </div>
+      )}
+
       {/* Grid of Audio Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {paginatedFiles.map((fileUrl, index) => (
