@@ -19,37 +19,45 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
 
-  useEffect(() => {
-    const fetchAudioFiles = async () => {
-      try {
-        const response = await fetch('/api/audio')
-        const data = await response.json()
-        setAudioFiles(data)
-      } catch (error) {
-        console.error('Error fetching audio files:', error)
-      }
+  // Function to fetch audio files
+  const fetchAudioFiles = async () => {
+    try {
+      const response = await fetch('/api/audio') // Fetch from route
+      const data = await response.json()
+      setAudioFiles(data) // Update state with new audio files
+    } catch (error) {
+      console.error('Error fetching audio files:', error)
     }
-
-    fetchAudioFiles()
-  }, [])
-
-  // If not in album view, return null
-  if (currentView !== 'album') {
-    return null
   }
 
-  const filteredFiles = audioFiles.filter(file => 
+  // Polling: Fetch audio files periodically
+  useEffect(() => {
+    fetchAudioFiles() // Fetch initially
+    const interval = setInterval(fetchAudioFiles, 1000) // Poll every 5 seconds
+
+    return () => clearInterval(interval) // Cleanup the interval on unmount
+  }, []) // Empty dependency array means it runs only once
+
+  // Filter files based on search term
+  const filteredFiles = audioFiles.filter(file =>
     file.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Pagination logic
   const pageCount = Math.ceil(filteredFiles.length / itemsPerPage)
   const paginatedFiles = filteredFiles.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
 
+  // Render null if not in the 'album' view
+  if (currentView !== 'album') {
+    return null
+  }
+
   return (
     <div className="space-y-6">
+      {/* Grid of Audio Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {paginatedFiles.map((fileUrl, index) => (
           <Card key={index} className="overflow-hidden">
@@ -64,35 +72,39 @@ export function AudioGrid({ searchTerm, currentView }: AudioGridProps) {
           </Card>
         ))}
       </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious 
-              href="#" 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              aria-disabled={currentPage === 1}
-            />
-          </PaginationItem>
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink 
+
+      {/* Pagination Controls */}
+      {pageCount > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
                 href="#" 
-                onClick={() => setCurrentPage(page)}
-                isActive={currentPage === page}
-              >
-                {page}
-              </PaginationLink>
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                aria-disabled={currentPage === 1}
+              />
             </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext 
-              href="#" 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageCount))}
-              aria-disabled={currentPage === pageCount}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink 
+                  href="#" 
+                  onClick={() => setCurrentPage(page)}
+                  isActive={currentPage === page}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                href="#" 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageCount))}
+                aria-disabled={currentPage === pageCount}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   )
 }

@@ -3,9 +3,12 @@ import os
 import shutil
 from pca import face_recognition
 import zipfile
+import time
 
 def find_album():
     print("Starting find_album function")
+
+    start_time = time.time()
 
     # Get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -93,6 +96,11 @@ def find_album():
 
     print(f"Album finder completed. Closest image path: {closest_image_path}, Artist name: {artist_name}, Audio folder: {audio_folder}")
 
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time} seconds")
+
 # Export the function
 if __name__ == "__main__":
-    find_album()
+    execution_time = find_album()
+    print(f"Execution time: {execution_time} seconds")

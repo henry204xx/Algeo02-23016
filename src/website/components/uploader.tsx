@@ -20,8 +20,9 @@ interface UploaderProps {
 
 export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderProps) {
   const [allFieldsFilled, setAllFieldsFilled] = useState(false);
+  const [executionTime, setExecutionTime] = useState<number | null>(null);
+  const [queryImageUrl, setQueryImageUrl] = useState<string | null>(null);
 
-  // Check if all required fields are filled
   useEffect(() => {
     const requiredFields = currentView === 'album'
       ? ['audios', 'pictures', 'mapper', 'queryImage']
@@ -31,7 +32,16 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
     setAllFieldsFilled(allFilled);
   }, [uploadedFiles, currentView]);
 
-  // Handle file uploads
+  useEffect(() => {
+    if (uploadedFiles.queryImage) {
+      const url = URL.createObjectURL(uploadedFiles.queryImage);
+      setQueryImageUrl(url);
+
+      // Clean up the URL object when the component unmounts or the file changes
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [uploadedFiles.queryImage]);
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     type: 'audios' | 'pictures' | 'mapper' | 'queryMusic' | 'queryImage'
@@ -63,7 +73,6 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
     }
   };
 
-  // Handle the Execute button logic
   const handleFindAlbum = async () => {
     if (!allFieldsFilled) return;
 
@@ -78,8 +87,9 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
           console.error('Error calling find_album API:', await findAlbumResponse.json());
           alert('Error: Unable to execute find_album.');
         } else {
+          const responseData = await findAlbumResponse.json();
           console.log('find_album API called successfully');
-          alert('find_album executed successfully!');
+          setExecutionTime(responseData.executionTime);
         }
       } else if (currentView === 'music') {
         console.log('Calling find_music API...');
@@ -101,7 +111,6 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
     }
   };
 
-  // Determine which file inputs to render
   const fileInputs =
     currentView === 'album'
       ? ['audios', 'pictures', 'mapper', 'queryImage']
@@ -160,6 +169,19 @@ export function Uploader({ onFileUpload, uploadedFiles, currentView }: UploaderP
         >
           Execute
         </Button>
+
+        {executionTime !== null && (
+          <div className="mt-4">
+            <p>Execution time: {executionTime} seconds</p>
+          </div>
+        )}
+
+        {currentView === 'album' && queryImageUrl && (
+          <div className="mt-4">
+            <p>Query Image:</p>
+            <img src={queryImageUrl} alt="Query Image" className="mt-2 max-w-full h-auto" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
